@@ -1,13 +1,15 @@
 import scrapy
 import re
+import os
 from urllib.parse import urlencode, urljoin
 from scrapy.loader import ItemLoader
 from directhome.items import DirecthomeItem
+from dotenv import load_dotenv
 
 
 class HomeSpider(scrapy.Spider):
     name = 'homes'
-    recursion_depth = 20
+    recursion_depth = 4
 
     def start_requests(self):
         params1 = urlencode({'q[listing_type_eq]': 1, 'page': 1})
@@ -20,8 +22,9 @@ class HomeSpider(scrapy.Spider):
             yield scrapy.Request(url=url, callback=self.parse)
 
     def parse(self, response):
-        email = 'vic_slastnov@yahoo.com'
-        password = 'xedgot-depdyh-0Hukxo'
+        load_dotenv('.env')
+        email = os.environ.get('USER')
+        password = os.environ.get('PWD')
         token = response.css('input[name="authenticity_token"]').attrib.get('value')
         return scrapy.FormRequest.from_response(response,
                                          formdata={'authenticity_token': token,
